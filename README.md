@@ -7,8 +7,11 @@ e determinar quais composições de exércitos têm vantagem em determinados con
 
 Opções:
 Seta pra cima: Revela o alvo de cada guerreiro.
+
 Seta pra baixo: Revela o grid
+
 Seta para direita: Aumenta a velocidade da simulação
+
 Seta para esquerda: Diminui a velocidade da simulação
 
 
