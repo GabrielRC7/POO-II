@@ -5,6 +5,7 @@ A simulação permite a criação de diferentes formações e estratégias de co
 O objetivo é proporcionar uma compreensão profunda das dinâmicas de combate, oferecendo uma plataforma para testar teorias e estratégias de batalha,
 e determinar quais composições de exércitos têm vantagem em determinados contextos.
 
+
 Opções:
 Seta pra cima: Revela o alvo de cada guerreiro.
 
