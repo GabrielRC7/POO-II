@@ -1,59 +1,71 @@
-# Example file showing a basic pygame "game loop"
+# Imports
 import pygame
 from batalha import Batalha, Guerreiro
 from funcoes import desenha_grid
 
-# pygame setup
+# Config pygame
 pygame.init()
 screen = pygame.display.set_mode((1280, 620))
 clock = pygame.time.Clock()
 running = True
-linhas = True
+linhas = False
 
+# Adicionando fundo 
+bg = pygame.image.load("bg.jpg")
 
-guerreiro = Guerreiro('joao', 5, 1, 2, 'bla', 5, 1000, 1, 3)
-arqueiro = Guerreiro('joao', 3, 1, 2, 'bla', 1, 600, 200, 5)
-lanceiro = Guerreiro('joaoTBM', 2, 1, 2, 'lanca?', 1, 1500, 50, 3)
+# Definindo as características de cada guerreiro
+guerreiro = Guerreiro(15, 2, 'Espada', 10, 1000, 1, 3, 5)
+arqueiro = Guerreiro(10, 1, 'Arco', 4, 500, 200, 8, 6)
+lanceiro = Guerreiro(8, 1.5, 'Lança', 8, 800, 50, 4, 5)
 
 guerra = Batalha()
 
-guerra.add_batalha(arqueiro, 3, 'esquerda') 
-guerra.add_batalha(lanceiro, 3, 'esquerda')
+# Definindo os 2 exércitos
+guerra.add_batalha(arqueiro, 6, 'esquerda') 
+guerra.add_batalha(lanceiro, 4, 'esquerda')
 guerra.add_batalha(guerreiro, 10, 'esquerda')
 
+guerra.add_batalha(arqueiro, 6, 'direita')
+guerra.add_batalha(lanceiro, 6, 'direita')
+guerra.add_batalha(guerreiro, 8, 'direita')
 
-guerra.add_batalha(arqueiro, 3, 'direita')
-guerra.add_batalha(lanceiro, 5, 'direita')
-guerra.add_batalha(guerreiro, 4, 'direita')
-
-
+# Iniciar batalha
 guerra.preparar_batalha()
 
-
-
+# Loop
+dt = 60
 while running:
-    # poll for events
-    # pygame.QUIT event means the user clicked X to close your window
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
         if event.type == pygame.KEYDOWN:
+            # Revela o grid
             if event.key == pygame.K_DOWN:
                 linhas = not linhas
+                
+            # Revela o alvo de cada guerreiro
+            if event.key == pygame.K_UP:
+                guerra.mostra_alvo = not guerra.mostra_alvo
 
-    # fill the screen with a color to wipe away anything from last frame
+            # Aumenta a velocidade da simulação 
+            if event.key == pygame.K_RIGHT:
+                dt = dt * 2
+            
+            # Diminui a velocidade da simulação
+            if event.key == pygame.K_LEFT:
+                dt = dt // 2
+
     screen.fill("black")
 
-    # RENDER YOUR GAME HERE
+    screen.blit(bg, (0, 0))
+
     if linhas:
         desenha_grid(screen, 60)
 
     guerra.tick_guerra(screen)
 
-    # flip() the display to put your work on screen
     pygame.display.flip()
 
-
-    clock.tick(60)  # limits FPS to 60
+    clock.tick(dt)
 
 pygame.quit()

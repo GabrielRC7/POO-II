@@ -1,10 +1,13 @@
+# Imports
 from guerreiro import Guerreiro
 import numpy as np
 
+# Classe Batalha
 class Batalha:
     def __init__(self) -> None:
         self.grid = [[[] for _ in range(22)] for _ in range(11)]
         self.exercitos = {}
+        self.mostra_alvo = False
         
     def add_batalha(self, entidade: Guerreiro, quantidade: int, exercito: str):
         
@@ -17,7 +20,7 @@ class Batalha:
 
         self.exercitos[exercito].append(temp)
 
-
+    # Prepara a batalha
     def preparar_batalha(self):
         numero_exercitos = len(self.exercitos)
         assert numero_exercitos <= 2, f"Essa versão ainda nao suporta mais de 2 exercitos ({self.exercitos.keys()})"
@@ -28,7 +31,7 @@ class Batalha:
         self.gerar_posicoes(nome_exercitos[0], True)
         self.gerar_posicoes(nome_exercitos[1], False)
 
-
+    # Gera as posições inicias de cada guerreiro no seu exército
     def gerar_posicoes(self, id, primeiro):
         exercito = self.exercitos[id]
 
@@ -53,6 +56,7 @@ class Batalha:
         else:
             guerreiro.id_exercito = 123
 
+    # Define o id do guerreiro
     def print_ids_grid(self):
         for linha in self.grid:
             for coluna in linha:
@@ -64,16 +68,18 @@ class Batalha:
                 print(" ", end="")
             print()
 
+    # Define o guerreiro
     def novo_guerreiro(self, guerreiro, posicao, id):
-        temp = Guerreiro(guerreiro.nome, guerreiro.forca, guerreiro.furia, guerreiro.agilidade,
-                         guerreiro.arma, guerreiro.resistencia, guerreiro.saude, guerreiro.alcance, guerreiro.visao)
+        temp = Guerreiro(guerreiro.forca, guerreiro.agilidade,
+                         guerreiro.arma, guerreiro.resistencia, guerreiro.saude, guerreiro.alcance, guerreiro.visao, 
+                         guerreiro.ataque_speed)
         
         temp.id_exercito = id
         temp.posicao = np.array(posicao)
         
         return temp
-
-
+    
+    # Move os guerreiros e atualiza sua posição no grid a cada tick
     def tick_guerra(self, screen):
         guerreiro: Guerreiro
         for linha_index, linha in enumerate(self.grid):
@@ -82,7 +88,7 @@ class Batalha:
                     alvo = guerreiro.movimenta(self.grid, [linha_index, coluna_index], guerreiro.id_exercito)
                     
                     if alvo:
-                        self.lutar(guerreiro, alvo)
+                        self.lutar(guerreiro, alvo, screen)
 
                     grid_x = int(guerreiro.posicao[0] // 60)
                     grid_y = int(guerreiro.posicao[1] // 60)
@@ -99,9 +105,18 @@ class Batalha:
                 for guerreiro in coluna:
                     guerreiro.desenhar(screen)
 
-    def lutar(self, agressor, vitima): 
-        dano = agressor.forca - vitima.resistencia
-        vitima.saude -= dano if dano > 10 else 10
+    # Quando um alvo entra na sua distancia de ataque, começa a luta
+    def lutar(self, agressor, vitima, screen): 
+        agressor.ataque_cd += 1
+
+        if agressor.ataque_cd >= 60 / agressor.ataque_speed:
+            dano = agressor.forca - vitima.resistencia
+            vitima.saude -= dano if dano > 10 else 10
+            agressor.ataque_cd = 0
+
+        if self.mostra_alvo:
+            agressor.desenha_alvo(vitima, screen)
+
         if vitima.saude <= 0:
             posicao_vitima = vitima.posicao
             grid_x = int(posicao_vitima[0]) // 60
